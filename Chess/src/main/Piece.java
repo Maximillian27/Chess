@@ -7,6 +7,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 public abstract class Piece {
+	private boolean hasMoved = false;
 	public Icon getIcon() {
 		try {
 			Image img = ImageIO.read(getClass().getResource(this.getImageLocation()));
@@ -18,6 +19,14 @@ public abstract class Piece {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public void setHasMoved() {
+		hasMoved = true;
+	}
+	
+	public boolean getHasMoved() {
+		return hasMoved;
 	}
 	
 	abstract String getImageLocation();

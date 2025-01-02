@@ -51,6 +51,7 @@ public class ChessBoard extends JFrame {
 		                		System.out.println("White Wins");
 		                		reference.dispose();
 		                	}
+		                	startingPlace.getPiece().setHasMoved();
 		                	button.setPiece(startingPlace.getPiece());
 		                	startingPlace.removePiece();
 		                	startingPlace = null;
