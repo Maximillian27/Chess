@@ -14,7 +14,12 @@ public class Tile extends JButton {
 	
 	public void setPiece(Piece piece) {
 		this.piece = piece;
-		this.setIcon(piece.getIcon());
+		if (piece == null) {
+			this.setIcon(null);
+		}
+		else {
+			this.setIcon(piece.getIcon());
+		}
 	}
 	
 	public Piece getPiece() {

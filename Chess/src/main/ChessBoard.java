@@ -6,6 +6,8 @@ import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 public class ChessBoard extends JFrame {
@@ -13,11 +15,13 @@ public class ChessBoard extends JFrame {
 	private final int rows = 8, columns = 8;
 	private Tile[][] tiles = new Tile[rows][columns];
 	private String turn = "White";
+	private boolean flipped = false;
 	public ChessBoard() {
 		super();
 		ChessBoard reference = this;
 		this.setSize(800, 800);
 		this.setResizable(false);
+		CreateMenu();
 		JPanel panel = new JPanel();
 		panel.setLayout(new GridLayout(rows, columns));
 		for (int i = 0; i < rows; i++) {
@@ -131,24 +135,28 @@ public class ChessBoard extends JFrame {
 			}
 		}
 		
-		if (start.getPiece() instanceof BlackPawn) {
+		if ((start.getPiece() instanceof BlackPawn && !flipped) || (start.getPiece() instanceof WhitePawn && flipped)) {
 			if (start.getRow() - end.getRow() == -1 && start.getColumn() == end.getColumn() && end.getPiece() == null) {
 				return true;
 			}
 			if (start.getRow() == 1 && end.getRow() == 3 && start.getColumn() == end.getColumn() && end.getPiece() == null) {
-				return true;
+				if (tiles[2][start.getColumn()].getPiece() == null) {
+					return true;
+				}
 			}
 			if (start.getRow() - end.getRow() == -1 && Math.abs(start.getColumn() - end.getColumn()) == 1 && end.getPiece() != null) {
 				return true;
 			}
 		}
 		
-		if (start.getPiece() instanceof WhitePawn) {
+		if ((start.getPiece() instanceof WhitePawn && !flipped) || (start.getPiece() instanceof BlackPawn && flipped)) {
 			if (start.getRow() - end.getRow() == 1 && start.getColumn() == end.getColumn() && end.getPiece() == null) {
 				return true;
 			}
 			if (start.getRow() == 6 && end.getRow() == 4 && start.getColumn() == end.getColumn() && end.getPiece() == null) {
-				return true;
+				if (tiles[5][start.getColumn()].getPiece() == null) {
+					return true;
+				}
 			}
 			if (start.getRow() - end.getRow() == 1 && Math.abs(start.getColumn() - end.getColumn()) == 1 && end.getPiece() != null) {
 				return true;
@@ -221,5 +229,28 @@ public class ChessBoard extends JFrame {
 			}
 		}
 		return true;
+	}
+	
+	private void CreateMenu() {
+		JMenuBar menu = new JMenuBar();
+		JMenuItem flip = new JMenuItem("flip");
+		flip.addActionListener(new ActionListener() {
+		            public void actionPerformed(ActionEvent e) {
+		            	flipped = !flipped;
+		            	for (int i = 0; i < rows/2; i++) {
+		            		for (int j = 0; j < columns; j++) {
+		            			swapPieces(tiles[i][j], tiles[rows-i-1][columns-j-1]);
+		            		}
+		            	}
+		            }
+		        });
+		menu.add(flip);
+		this.setJMenuBar(menu);
+	}
+	
+	private void swapPieces(Tile first, Tile second) {
+		Piece temp = first.getPiece();
+		first.setPiece(second.getPiece());
+		second.setPiece(temp);
 	}
 }
