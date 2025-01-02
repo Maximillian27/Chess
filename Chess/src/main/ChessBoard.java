@@ -26,33 +26,33 @@ public class ChessBoard extends JFrame {
 		panel.setLayout(new GridLayout(rows, columns));
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < columns; j++) {
-				Tile button = new Tile(i, j);
-				tiles[i][j] = button;
+				Tile endingPlace = new Tile(i, j);
+				tiles[i][j] = endingPlace;
 				if ((i + j) % 2 == 1) {
-					button.setBackground(Color.DARK_GRAY);
+					endingPlace.setBackground(Color.DARK_GRAY);
 				}
 				else {
-					button.setBackground(Color.LIGHT_GRAY);
+					endingPlace.setBackground(Color.LIGHT_GRAY);
 				}
-				button.setBorderPainted(false);
-				button.setOpaque(true);
-		        button.addActionListener(new ActionListener() {
+				endingPlace.setBorderPainted(false);
+				endingPlace.setOpaque(true);
+		        endingPlace.addActionListener(new ActionListener() {
 		            public void actionPerformed(ActionEvent e) {
 		                // Code to execute when the button is clicked
-		            	if (startingPlace == null && isValidStart(button)) {
-		            		startingPlace = button;
+		            	if (startingPlace == null && isValidStart(endingPlace)) {
+		            		startingPlace = endingPlace;
 		            	}
-		            	else if (startingPlace != null && isValidMove(startingPlace, button)) {
-		                	if (button.getPiece() instanceof WhiteKing) {
+		            	else if (startingPlace != null && isValidMove(startingPlace, endingPlace)) {
+		                	if (endingPlace.getPiece() instanceof WhiteKing) {
 		                		System.out.println("Black Wins");
 		                		reference.dispose();
 		                	}
-		                	if (button.getPiece() instanceof BlackKing) {
+		                	if (endingPlace.getPiece() instanceof BlackKing) {
 		                		System.out.println("White Wins");
 		                		reference.dispose();
 		                	}
 		                	startingPlace.getPiece().setHasMoved();
-		                	button.setPiece(startingPlace.getPiece());
+		                	endingPlace.setPiece(startingPlace.getPiece());
 		                	startingPlace.removePiece();
 		                	startingPlace = null;
 		                	if (turn.equals("White")) {
@@ -62,12 +62,32 @@ public class ChessBoard extends JFrame {
 		                		turn = "White";
 		                	}
 		                }
-		            	else if (isValidStart(button)) {
-		            		startingPlace = button;
+		            	else if(startingPlace != null && isValidCastle(startingPlace, endingPlace)) {
+		            		int row = startingPlace.getRow();
+		            		if (endingPlace.getColumn() == 0) {
+		            			tiles[row][2].setPiece(startingPlace.getPiece());
+		            			tiles[row][3].setPiece(endingPlace.getPiece());
+		            		}
+		            		else {
+		            			tiles[row][6].setPiece(startingPlace.getPiece());
+		            			tiles[row][5].setPiece(endingPlace.getPiece());
+		            		}
+		            		startingPlace.removePiece();
+		            		endingPlace.removePiece();
+		            		startingPlace = null;
+		                	if (turn.equals("White")) {
+		                		turn = "Black";
+		                	}
+		                	else {
+		                		turn = "White";
+		                	}
+		            	}
+		            	else if (isValidStart(endingPlace)) {
+		            		startingPlace = endingPlace;
 		            	}
 		            }
 		        });
-	            panel.add(button);
+	            panel.add(endingPlace);
 			}
 		}
 		for (int i = 0; i < columns; i++) {
@@ -117,13 +137,13 @@ public class ChessBoard extends JFrame {
 		}
 		if (start.getPiece() instanceof Bishop || start.getPiece() instanceof Queen) {
 			if (Math.abs(start.getRow() - end.getRow()) == Math.abs(start.getColumn() - end.getColumn())) {
-				if (clearBetweenDiagonally(start, end, tiles)) {
+				if (clearBetweenDiagonally(start, end)) {
 					return true;
 				}
 			}
 		}
 		if (start.getPiece() instanceof Rook || start.getPiece() instanceof Queen) {
-			if ((start.getRow() == end.getRow() && clearBetweenHorizontally(start, end, tiles)) || (start.getColumn() == end.getColumn() && clearBetweenVertically(start, end, tiles))) {
+			if ((start.getRow() == end.getRow() && clearBetweenHorizontally(start, end)) || (start.getColumn() == end.getColumn() && clearBetweenVertically(start, end))) {
 				return true;
 			}
 		}
@@ -169,10 +189,22 @@ public class ChessBoard extends JFrame {
 				return true;
 			}
 		}
+		
 		return false;
 	}
 	
-	private boolean clearBetweenDiagonally(Tile start, Tile end, Tile[][] tiles) {
+	private boolean isValidCastle(Tile start, Tile end) {
+		if (start.getPiece() instanceof King && end.getPiece() instanceof Rook && start.getPiece().getColor().equals(end.getPiece().getColor())) {
+			if (!start.getPiece().getHasMoved() && !end.getPiece().getHasMoved() && start.getRow() == end.getRow()) {
+				if (clearBetweenHorizontally(start, end)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private boolean clearBetweenDiagonally(Tile start, Tile end) {
 		int distance = Math.abs(start.getRow() - end.getRow());
 		int row = 0;
 		int column = 0;
@@ -196,7 +228,7 @@ public class ChessBoard extends JFrame {
 		return true;
 	}
 	
-	private boolean clearBetweenHorizontally(Tile start, Tile end, Tile[][] tiles) {
+	private boolean clearBetweenHorizontally(Tile start, Tile end) {
 		int distance = Math.abs(start.getColumn() - end.getColumn());
 		int row = start.getRow();
 		int column = 0;
@@ -214,7 +246,7 @@ public class ChessBoard extends JFrame {
 		return true;
 	}
 	
-	private boolean clearBetweenVertically(Tile start, Tile end, Tile[][] tiles) {
+	private boolean clearBetweenVertically(Tile start, Tile end) {
 		int distance = Math.abs(start.getRow() - end.getRow());
 		int row = 0;
 		int column = start.getColumn();
